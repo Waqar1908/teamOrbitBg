@@ -40,7 +40,7 @@ exports.login = async ({ email, password }) => {
 
   return {
     token,
-    user: {
+    company: {
       id: user.id,
       name: user.name,
       email: user.email

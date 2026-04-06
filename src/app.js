@@ -12,4 +12,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", require("./modules/auth/auth.routes"));
 
+app.use("/employee-auth", require("./modules/employeeAuth/employeeAuth.routes"));
+app.use("/api/emp", require("./modules/emp/emp.routes"));
+
 module.exports = app; 
