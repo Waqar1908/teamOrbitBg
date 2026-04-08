@@ -1,13 +1,15 @@
 const db = require("../../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { generateCompanyId } = require("../../utils/generateCompanyId");
 
-exports.signup = async ({ name, email, password }) => {
+exports.signup = async ({ name, email, password, team_size }) => {
+  const companyCode = generateCompanyId();
   try {
     const hash = await bcrypt.hash(password, 10);
     const result = await db.query(
-      "INSERT INTO company(name,email,password) VALUES($1,$2,$3) RETURNING id,name,email",
-      [name, email, hash]
+      "INSERT INTO company(name,email,password,team_size,company_code) VALUES($1,$2,$3,$4,$5) RETURNING id,name,email,team_size,company_code",
+      [name, email, hash, team_size, companyCode]
     );
 
     return result.rows[0];
@@ -33,7 +35,12 @@ exports.login = async ({ email, password }) => {
   if (!valid) throw new Error("Invalid password");
 
   const token = jwt.sign(
-    { id: user.id },
+    {
+      id: user.id,
+      company_code: user.company_code,
+      name: user.name,
+      email: user.email,
+    },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
@@ -43,7 +50,9 @@ exports.login = async ({ email, password }) => {
     company: {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      team_size: user.team_size,
+      company_code: user.company_code
     }
   };
 };
